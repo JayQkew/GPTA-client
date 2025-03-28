@@ -1,6 +1,3 @@
-const eventSource = new EventSource('http://localhost:3000/db-update-progress');
-const updateDatabaseBtn = document.querySelector('.update-database');
-const progressBar = document.querySelector('.progress-bar');
 const generateTableBtn = document.querySelector('.generate-table');
 const downloadBtn = document.querySelector('.download-table');
 const filterBtnContainer = document.querySelector('.filter-btns-container');
@@ -12,12 +9,6 @@ const removeFilterBtn = document.getElementById('.remove-fiters');
 
 let allApps;
 let fapkApps;
-
-updateDatabaseBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    progressBar.classList.remove('hidden-v');
-    await updateDatabase();
-})
 
 generateTableBtn.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -43,23 +34,6 @@ generateTableBtn.addEventListener('click', async (e) => {
 
 downloadBtn.addEventListener('click', exportTableToExcel);
 
-eventSource.onmessage = (e) => {
-    const res = JSON.parse(e.data);
-    const progressBar = document.querySelector('.progress');
-    const progressText = progressBar.querySelector('p');
-
-    const percentage = Math.round((res.current / res.total) * 100);
-    
-    progressBar.style.width = percentage + '%';
-    progressText.innerText = percentage + '%';
-    
-    if (res.current === res.total) {
-        console.log("Update Complete!");
-        progressBar.classList.add('hidden-v');
-        eventSource.close();
-    }
-}
-
 filterBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -79,16 +53,7 @@ filterBtns.forEach(btn => {
     });
 });
 
-async function updateDatabase(){
-    try {
-        const res = await fetch("/update-database");
-
-        if(!res.ok) throw new Error('Failed to update database');
-    } catch (error) {
-        console.error("Error updating database:", error);
-    }
-}
-
+//TODO: make request to supabase API
 async function getDbApps(){
     try {
         const res = await fetch('/db-apps');
@@ -100,6 +65,7 @@ async function getDbApps(){
     }
 }
 
+//TODO: make request directly to findApk
 async function getFindApkApps(){
     try{
         const res = await fetch('/findApk-apps');
