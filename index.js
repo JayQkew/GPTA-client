@@ -9,8 +9,8 @@ const removeFilterBtn = document.getElementById('.remove-fiters');
 
 const { createClient } = supabase;
 
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+const SUPABASE_URL = 'https://oiqnwmskqrfubdxthvkr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pcW53bXNrcXJmdWJkeHRodmtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyODg2MDUsImV4cCI6MjA1Nzg2NDYwNX0.hEUDvzdXVRCRuf4jbwHrdCgDp_4QIe4It9Cvbo7itCU';
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allApps;
@@ -23,13 +23,13 @@ generateTableBtn.addEventListener('click', async (e) => {
     const findApkApps = await getFindApkApps();
     // loop through dbApps and make a new array that has dbApps with findApk apps
     allApps = dbApps.map(app => {
-        const findApk = findApkApps.find(a => a.packageName == app.package_name);
+        const findApk = findApkApps.find(a => a.package_name == app.package_name);
         return {
             name: app.name,
             packageName: app.package_name,
             lastUpdated: app.last_updated ? app.last_updated : 'new release',
             gpVersion: app.version,
-            findApkVersion: findApk ? findApk.versionName : null
+            findApkVersion: findApk ? findApk.version : null
         }
     });
 
@@ -78,25 +78,14 @@ async function getDbApps(){
 //TODO: make request directly to findApk
 async function getFindApkApps(){
     try{
-        const res = await fetch(`https://findapk.co.za/api/v1/app/get-app-details/petal?page=1&limit=${500}`, {
-            method: 'GET',
-            headers: { "Content-Type": "application/json" }
-        });
+        const { data, error } = await supabaseClient
+            .from('findapk_details')
+            .select('*');
 
-        if(!res.ok){
-            throw new Error('Failed to get apps');
-        }
+        if (error) throw new Error('Failed to fetch data from Supabase');
 
-        console.log('POST OK');
-        const findApkApps = await res.json();
-        const apps = findApkApps.applications;
-
-        const filteredApps = Object.values(apps.reduce((acc, app) => {
-            acc[app.num] = app; // Always store the last app for each `num`
-            return acc;
-        }, {}));
-
-        return filteredApps;
+        console.log('Fetched apps: ', data);
+        return data;
     } catch (err){
         console.error("Error Getting Apps ", err);
         return null;
