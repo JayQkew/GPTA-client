@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <title>Home</title>
+</head>
+<body>
+    <header>
+        <h1>GP Top Apps</h1>
+    </header>
+    <main>
+        <article class="container">
+            <section class="progress-bar-container">
+                <div class="progress-bar hidden-v">
+                    <div class="progress">
+                        <p>100%</p>
+                    </div>
+                </div>
+            </section>
+            <section class="btn-container">
+                <button class="btn update-database">Update Database</button>
+                <div class="table-btns">
+                    <button class="generate-table">Generate Table</button>
+                    <button class="download-table" disabled>Download Table</button>
+                </div>
+                <div class="filter-btns hidden-v">
+                    <h2>Filters</h2>
+                    <div class="filter-btns-container">
+                        <button class="on-findApk">On FindApk</button>
+                        <button class="require-update">Require Updates</button>
+                        <button class="remove-filters">No Filter</button>
+                    </div>
+                </div>
+            </section>
+        </article>
+        <div class="table-container">
+            <table id="top-apps-table">
+            </table>            
+        </div>
+    </main>
+    <footer>
+
+    </footer>
+    <script type="module" src="index.js"></script>
+</body>
+</html>
