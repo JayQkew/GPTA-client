@@ -7,6 +7,12 @@ const onfindApkFilterBtn = document.getElementById('.on-findApk');
 const requireUpdateFilterBtn = document.getElementById('.require-update');
 const removeFilterBtn = document.getElementById('.remove-fiters');
 
+const { createClient } = supabase;
+
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let allApps;
 let fapkApps;
 
@@ -56,10 +62,14 @@ filterBtns.forEach(btn => {
 //TODO: make request to supabase API
 async function getDbApps(){
     try {
-        const res = await fetch('/db-apps');
-        if(!res.ok) throw new Error('Failed to get db apps');
-        const data = await res.json();
-        return data.data;
+        const { data, error } = await supabaseClient
+            .from('app_details')
+            .select('*');
+
+        if (error) throw new Error('Failed to fetch data from Supabase');
+
+        console.log('Fetched apps: ', data);
+        return data;
     } catch (error){
         console.error("Error getting database apps: ", error);
     }
@@ -68,12 +78,28 @@ async function getDbApps(){
 //TODO: make request directly to findApk
 async function getFindApkApps(){
     try{
-        const res = await fetch('/findApk-apps');
-        if(!res.ok) throw new Error('Failed to get findApk apps');
-        const data = await res.json();
-        return data.data;
-    } catch (error){
-        console.error('Error getting findApk apps: ', error);
+        const res = await fetch(`https://findapk.co.za/api/v1/app/get-app-details/petal?page=1&limit=${500}`, {
+            method: 'GET',
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if(!res.ok){
+            throw new Error('Failed to get apps');
+        }
+
+        console.log('POST OK');
+        const findApkApps = await res.json();
+        const apps = findApkApps.applications;
+
+        const filteredApps = Object.values(apps.reduce((acc, app) => {
+            acc[app.num] = app; // Always store the last app for each `num`
+            return acc;
+        }, {}));
+
+        return filteredApps;
+    } catch (err){
+        console.error("Error Getting Apps ", err);
+        return null;
     }
 }
 
